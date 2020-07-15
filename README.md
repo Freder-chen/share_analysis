@@ -39,7 +39,7 @@ Share是自己做股票的小工具（目前只支持深沪两市）。Share Ana
 3. 安装Python库
 
    ```shell
-   python3 -m pip install requests, numpy, pandas, sklearn, lightgbm, matplotlib, fire
+   python3 -m pip install requests numpy pandas sklearn lightgbm matplotlib fire
    ```
 
 ## 功能及使用
@@ -55,5 +55,7 @@ python3 -m share_analysis pred --n 30 --end \"yyyymmdd\" # 预测: end 为pred f
 TMP_PATH = os.path.join(tempfile.gettempdir(), 'share_analysis')
 ```
 
+## 有趣的链接
 
+- [项目链接](https://github.com/Freder-chen/share_analysis)
 

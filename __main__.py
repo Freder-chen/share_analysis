@@ -13,7 +13,7 @@ from sklearn.model_selection import StratifiedKFold
 from .data import fetch_stock_base, fetch_trade_date
 from .process import create_frame_by_dates, create_feature_frame_by_date
 from .model import pred as model_pred
-from .utils import check_date
+from .utils import check_date, TMP_PATH
 
 
 logging.basicConfig(
@@ -21,10 +21,11 @@ logging.basicConfig(
     format='%(asctime)s %(name)s : [%(levelname)s] %(message)s'
 )
 logger = logging.getLogger(__name__)
+logger.info('Buffer data storage path: {}'.format(TMP_PATH))
 
 
 N = 30
-TODAY = datetime.today()
+TODAY = datetime.today().strftime('%Y%m%d')
 DELETE_STOCK_AFTER_DATE = '20200101'
 
 # FEATURES

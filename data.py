@@ -10,6 +10,7 @@ import os
 import json
 import logging
 import pandas as pd
+from datetime import datetime
 from .utils import fetch
 from .utils import check_date
 from .utils import HOST, TMP_PATH
@@ -49,7 +50,13 @@ def fetch_xq_feature(date, host=HOST, tmp=TMP_PATH):
     return _fetch_data_frame(url, filename=filename)
 
 
-def fetch_trade_date(start=None, end=None, n=None, host=HOST, tmp=TMP_PATH):
+def fetch_trade_date(start=None, end=None, n=None, rs='20190101', re=datetime.today().strftime('%Y%m%d'), host=HOST, tmp=TMP_PATH):
+    '''
+    Describe:
+        request to update once a day.
+        request start: '20190101'
+                end  : today
+    '''
     def _ftd(dates, start, end, n):
         dates = [check_date(d) for d in dates]; dates.sort()
         if start is not None and end is not None:
@@ -69,15 +76,23 @@ def fetch_trade_date(start=None, end=None, n=None, host=HOST, tmp=TMP_PATH):
             raise ValueError('start, end and n must be filled with two.')
         return dates
 
+    fetch_url = _TRADE_DATE.format(host=host, start=rs, end=re)
     filename = os.path.join(tmp, 'trade_date.csv') if tmp else None
     try:
         with open(filename) as f:
-            dates = json.load(f)
-        dates = _ftd(dates, start, end, n)
+            data = json.load(f)
+        if data['url'] != fetch_url:
+            raise ValueError('Data need to update.')
     except (ValueError, FileNotFoundError):
-        from datetime import datetime
-        url = _TRADE_DATE.format(host=host, start='20190101', end=datetime.today().strftime('%Y%m%d'))
-        dates = _ftd(_fetch_json(url, filename=filename, update=True), start, end, n)
+        data  = {'url': fetch_url, 'data': _fetch_json(fetch_url)}
+        if filename:
+            dirname = os.path.dirname(filename)
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+            with open(filename, 'w') as f:
+                json.dump(data, f)
+    finally:
+        dates = _ftd(data['data'], start, end, n)
     return dates
 
 
