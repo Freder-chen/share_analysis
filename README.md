@@ -46,8 +46,8 @@ Share是自己做股票的小工具（目前只支持深沪两市）。Share Ana
 
 ```shell
 # 打开cmd输入, n为训练数据日期跨度（默认30），end为最后一天日期（默认today）
-python3 -m share_analysis test --n 30 --end \"yyyymmdd\" # 测试: end 为pred lebel的日期
-python3 -m share_analysis pred --n 30 --end \"yyyymmdd\" # 预测: end 为pred feature的日期
+python3 -m share_analysis test --n 30 --end yyyymmdd # 测试: end 为pred lebel的日期
+python3 -m share_analysis pred --n 30 --end yyyymmdd # 预测: end 为pred feature的日期
 ```
 
 同时会对数据做一些缓存，目录在utils.py中，对应代码：
@@ -58,4 +58,3 @@ TMP_PATH = os.path.join(tempfile.gettempdir(), 'share_analysis')
 ## 有趣的链接
 
 - [项目链接](https://github.com/Freder-chen/share_analysis)
-

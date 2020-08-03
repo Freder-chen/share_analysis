@@ -7,6 +7,7 @@ Created on 2020/06/22
 """
 
 import os
+import time
 import json
 import logging
 import pandas as pd
@@ -18,10 +19,12 @@ from .utils import HOST, TMP_PATH
 
 logger = logging.getLogger(__name__)
 
+_SCRET_DATE = '20190101' # begin date of fetch function
+
 
 _STOCK_BASE = '{host}/api/tushareprobase'
 _TRADE_DATE = '{host}/api/workday?start={start}&end={end}'
-_HISTROY    = '{host}/api/history?start={start}&end={end}'
+_HISTORY    = '{host}/api/history?symbol={symbol}&start={start}&end={end}'
 _EM_FEATURE = '{host}/api/eastmoney?start={start}&end={end}'
 _XQ_FEATURE = '{host}/api/xueqiu?start={start}&end={end}'
 
@@ -33,9 +36,24 @@ def fetch_stock_base(host=HOST, tmp=TMP_PATH):
 
 
 def fetch_history(date, host=HOST, tmp=TMP_PATH):
-    url = _HISTROY.format(host=host, start=date, end=date)
+    url = _HISTORY.format(host=host, symbol='', start=date, end=date)
     filename = os.path.join(tmp, 'history', '{}.csv'.format(date)) if tmp else None
     return _fetch_data_frame(url, filename=filename)
+
+
+def fetch_daily(symbol, host=HOST, tmp=TMP_PATH):
+    """
+    Describe:
+        request symbol: need
+                start: '20190101'
+    """
+    url = _HISTORY.format(host=host, symbol=symbol, start=_SCRET_DATE, end='')
+    filename = os.path.join(tmp, 'daily', '{}.csv'.format(symbol)) if tmp else None
+    update = False
+    if os.path.exists(filename) and time.strftime('%Y%m%d', \
+            time.gmtime(os.path.getmtime(filename))) != datetime.today().strftime('%Y%m%d'):
+        update = True
+    return _fetch_data_frame(url, filename=filename, update=update)
 
 
 def fetch_em_feature(date, host=HOST, tmp=TMP_PATH):
@@ -50,7 +68,7 @@ def fetch_xq_feature(date, host=HOST, tmp=TMP_PATH):
     return _fetch_data_frame(url, filename=filename)
 
 
-def fetch_trade_date(start=None, end=None, n=None, rs='20190101', re=datetime.today().strftime('%Y%m%d'), host=HOST, tmp=TMP_PATH):
+def fetch_trade_date(start=None, end=None, n=None, rs=_SCRET_DATE, re=datetime.today().strftime('%Y%m%d'), host=HOST, tmp=TMP_PATH):
     '''
     Describe:
         request to update once a day.
@@ -101,7 +119,7 @@ def _fetch_data_frame(url, filename=None, update=False):
         df = pd.read_csv(filename, dtype={'symbol': 'str'})
     else:
         df = pd.DataFrame(json.loads(fetch(url).content.decode('utf-8')))
-        if filename:
+        if (not df.empty) and filename:
             dirname = os.path.dirname(filename)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
@@ -114,8 +132,9 @@ def _fetch_json(url, filename=None, update=False):
         with open(filename) as f:
             ret = json.load(f)
     else:
+        # fetch(url).json()
         ret = json.loads(fetch(url).content.decode('utf-8'))
-        if filename:
+        if ret != {} and filename:
             dirname = os.path.dirname(filename)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)

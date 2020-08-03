@@ -9,7 +9,8 @@ import tempfile
 logger = logging.getLogger(__name__)
 
 
-HOST = 'http://123.57.60.215:8000'
+# HOST = 'http://123.57.60.215:8000'
+HOST = 'http://134.175.216.8'
 TMP_PATH = os.path.join(tempfile.gettempdir(), 'share_analysis')
 
 
